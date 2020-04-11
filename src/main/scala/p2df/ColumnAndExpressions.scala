@@ -99,4 +99,36 @@ object ColumnAndExpressions extends App {
   val allCountriesDf = carsDF.select("Origin").distinct()
 
   allCountriesDf.show()
+
+  /**
+    * Exercise
+    *
+    * 1. read the movie DF and select 2 col of my choice
+    * 2. create another col summing up the total profit of the movie = us_gross + world...
+    * 3. select all comedy movies with IMDB rating 6
+    */
+
+  // 0. prepare
+  val moviesDf = spark.read
+    .option("inferSchema", "true")
+    .json("src/main/resources/data/movies.json")
+  moviesDf.show()
+
+  // 1.
+  val selectedMoviesDf = moviesDf.select("US_Gross", "Worldwide_Gross")
+  selectedMoviesDf.show()
+
+  //2.
+  val selectAndAddMoviesDf = moviesDf.select(
+    col("US_Gross"),
+    col("Worldwide_Gross"),
+    expr("US_Gross + Worldwide_Gross").as("sum_up")
+  )
+  selectAndAddMoviesDf.show()
+
+  //3.
+  val filteredMoviesDf = moviesDf.filter(
+    "Major_Genre = 'Comedy' and IMDB_Rating > 6 "
+  )
+  filteredMoviesDf.show()
 }
